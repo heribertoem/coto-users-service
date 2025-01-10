@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copia el archivo JAR de tu aplicación al contenedor
 # Asegúrate de que el nombre coincida con el generado por Gradle
-COPY build/libs/it-services-0.0.1-SNAPSHOT.jar app.jar
+COPY build/libs/*.jar app.jar
 
 # Expone el puerto configurado en tu aplicación (1020)
 EXPOSE 1020
