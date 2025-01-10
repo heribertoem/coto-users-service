@@ -1,10 +1,20 @@
-FROM ubuntu:latest AS build
-RUN apt-get update
-RUN apt-get install openjdk-21-jdk -y
-COPY . .
-RUN ./gradlew bootJar --no-daemon
+# Usa una imagen base con soporte para Java 21
+FROM eclipse-temurin:21-jdk-alpine
 
-FROM openjdk:21-jdk-slim
+# Establece el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Copia el archivo JAR de tu aplicación al contenedor
+# Asegúrate de que el nombre coincida con el generado por Gradle
+COPY build/libs/it-services-0.0.1-SNAPSHOT.jar app.jar
+
+# Expone el puerto configurado en tu aplicación (1020)
 EXPOSE 1020
-COPY --from=buil /build/libs/it-services-0.0.1-SNAPSHOT.jar app.jar
+
+# Configura variables de entorno para MongoDB (opcional)
+ENV SPRING_DATA_MONGODB_URI=mongodb+srv://heribertoem19:-6PS234n2nTeLcH@mycluster.ei0r1.mongodb.net/?retryWrites=true&w=majority&appName=MyCluster
+ENV SPRING_DATA_MONGODB_DATABASE=sample_mflix
+
+# Comando para ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
