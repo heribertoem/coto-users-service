@@ -17,4 +17,3 @@ ENV SPRING_DATA_MONGODB_DATABASE=sample_mflix
 
 # Comando para ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
