@@ -2,7 +2,7 @@
 FROM eclipse-temurin:21-jdk-alpine
 
 # Establece el directorio de trabajo dentro del contenedor
-WORKDIR /app
+WORKDIR /home/gradle/app
 
 # Copia el archivo JAR de tu aplicación al contenedor
 # Asegúrate de que el nombre coincida con el generado por Gradle
