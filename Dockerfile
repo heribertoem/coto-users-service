@@ -1,12 +1,23 @@
-# Usa una imagen base con soporte para Java 21
+# Etapa de construcción con Gradle
+FROM gradle:8.0-jdk21 as builder
+
+# Establece el directorio de trabajo dentro del contenedor de construcción
+WORKDIR /app
+
+# Copia todos los archivos del proyecto al contenedor
+COPY . .
+
+# Ejecuta el proceso de construcción del proyecto para generar el archivo JAR
+RUN gradle clean build
+
+# Etapa final
 FROM eclipse-temurin:21-jdk-alpine
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia el archivo JAR de tu aplicación al contenedor
-# Asegúrate de que el nombre coincida con el generado por Gradle
-COPY build/libs/it-services-0.0.1-SNAPSHOT.jar app.jar
+# Copia el archivo JAR generado desde la etapa de construcción
+COPY --from=builder /app/build/libs/it-services-0.0.1-SNAPSHOT.jar app.jar
 
 # Expone el puerto configurado en tu aplicación (1020)
 EXPOSE 1020
@@ -17,4 +28,3 @@ ENV SPRING_DATA_MONGODB_DATABASE=sample_mflix
 
 # Comando para ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
