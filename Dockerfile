@@ -1,12 +1,23 @@
-# Usa una imagen base con soporte para Java 21
+# Etapa 1: Construcción del JAR
+FROM gradle:8.0-jdk21 AS builder
+
+# Establece el directorio de trabajo dentro de la etapa de construcción
+WORKDIR /app
+
+# Copia los archivos del proyecto al contenedor
+COPY . .
+
+# Ejecuta el comando de Gradle para construir el JAR
+RUN gradle clean build --no-daemon
+
+# Etapa 2: Ejecución de la aplicación
 FROM eclipse-temurin:21-jdk-alpine
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia el archivo JAR de tu aplicación al contenedor
-# Asegúrate de que el nombre coincida con el generado por Gradle
-COPY build/libs/*.jar app.jar
+# Copia el JAR generado en la etapa de construcción al contenedor
+COPY --from=builder /app/build/libs/*.jar app.jar
 
 # Expone el puerto configurado en tu aplicación (1020)
 EXPOSE 1020
