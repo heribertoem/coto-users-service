@@ -1,6 +1,15 @@
-FROM gradle:8.0-jdk21 as builder
+FROM eclipse-temurin:21-jdk-alpine as builder
 
-# Establece el directorio de trabajo dentro del contenedor
+# Instala Gradle manualmente
+RUN apk add --no-cache --virtual .build-deps \
+    curl bash && \
+    curl -s https://services.gradle.org/distributions/gradle-8.0-bin.zip -o gradle.zip && \
+    unzip gradle.zip && \
+    mv gradle-8.0 /opt/gradle && \
+    ln -s /opt/gradle/bin/gradle /usr/bin/gradle && \
+    rm gradle.zip && \
+    apk del .build-deps
+
 WORKDIR /app
 
 # Copia todo el código fuente y gradle al contenedor
@@ -9,7 +18,6 @@ COPY . .
 # Ejecuta la construcción del proyecto
 RUN gradle build
 
-# Establece una nueva imagen base para la ejecución
 FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
