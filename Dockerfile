@@ -4,7 +4,7 @@ FROM eclipse-temurin:21-jdk-alpine as builder
 RUN apk update && apk add --no-cache bash curl unzip
 
 # Descarga e instala Gradle
-ENV GRADLE_VERSION=8.0
+ENV GRADLE_VERSION=8.11
 RUN curl -sL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -o gradle.zip && \
     unzip gradle.zip && \
     mv gradle-${GRADLE_VERSION} /opt/gradle && \
