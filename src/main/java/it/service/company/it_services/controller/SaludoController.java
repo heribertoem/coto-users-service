@@ -39,4 +39,5 @@ public class SaludoController {
     public Optional<Users> getUser(@PathVariable("name")String name){
         return  saludoService.getUserByName(name);
     }
+
 }
