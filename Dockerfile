@@ -1,37 +1,36 @@
+# Etapa 1: Construcción del proyecto
 FROM eclipse-temurin:21-jdk-alpine as builder
 
-# Actualiza los repositorios y añade las herramientas necesarias
-RUN apk update && apk add --no-cache bash curl unzip
+# Instala herramientas necesarias para Gradle y certifica SSL
+RUN apk add --no-cache bash curl zip unzip ca-certificates
 
-# Descarga e instala Gradle
-ENV GRADLE_VERSION=8.11
-RUN curl -sL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -o gradle.zip && \
-    unzip gradle.zip && \
-    mv gradle-${GRADLE_VERSION} /opt/gradle && \
-    ln -s /opt/gradle/bin/gradle /usr/bin/gradle && \
-    rm gradle.zip
-
+# Establece el directorio de trabajo para la construcción
 WORKDIR /app
 
-# Copia el proyecto al contenedor
+# Copia los archivos del proyecto al contenedor
 COPY . .
 
-# Construye el proyecto
-RUN gradle clean build
+# Ejecuta la construcción del proyecto para generar el JAR
+RUN ./gradlew clean build --no-daemon
 
+# Etapa 2: Imagen final
 FROM eclipse-temurin:21-jdk-alpine
 
+# Instala certificados raíz para conexiones SSL
+RUN apk add --no-cache ca-certificates
+
+# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia el archivo JAR generado desde la etapa anterior
-COPY --from=builder /app/build/libs/it-services-0.0.1-SNAPSHOT.jar app.jar
+# Copia el archivo JAR generado desde la etapa de construcción
+COPY --from=builder /app/build/libs/*.jar app.jar
 
-# Expone el puerto configurado
+# Expone el puerto configurado en la aplicación (1020)
 EXPOSE 1020
 
 # Configura variables de entorno para MongoDB
-ENV SPRING_DATA_MONGODB_URI=mongodb+srv://heribertoem19:-6PS234n2nTeLcH@mycluster.ei0r1.mongodb.net/?retryWrites=true&w=majority&appName=MyCluster
+ENV SPRING_DATA_MONGODB_URI=mongodb+srv://heribertoem19:-6PS234n2nTeLcH@mycluster.ei0r1.mongodb.net/sample_mflix?retryWrites=true&w=majority
 ENV SPRING_DATA_MONGODB_DATABASE=sample_mflix
 
-# Ejecuta la aplicación
+# Comando para ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]
